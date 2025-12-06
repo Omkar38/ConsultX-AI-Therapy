@@ -214,3 +214,153 @@ http://127.0.0.1:8000
 ---
 
 If the RAG stack fails (missing libraries, no vector store, etc.), the backend returns a graceful error note in the `rag` block **without breaking the session tracker**.
+
+---
+## 6. Frontend — React + Vite App
+
+From the repo root:
+
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Run dev server (default Vite port: 3000)
+npm run dev
+```
+
+You should see something like:
+
+```text
+VITE vX.X.X  ready in XXXX ms
+  ➜  Local:   http://localhost:3000/
+```
+
+Configure the frontend to point at your backend API (`http://127.0.0.1:8000` by default).  
+Once wired, you can:
+
+- Start a new session from the UI.
+- Send user messages.
+- View assistant responses, risk tiers, and summaries.
+
+
+---
+## 7. REST API Summary
+
+All endpoints are served from backend/api.py.
+
+| Method | Path                      | Description                                                             |
+| ------ | ------------------------- | ----------------------------------------------------------------------- |
+| POST   | `/sessions`               | Create a new session. Body: `{"user_id": "...", "metadata": {...}}`.    |
+| GET    | `/sessions`               | List sessions (optional filters: `user_id`, `status`).                  |
+| GET    | `/sessions/{id}`          | Get metadata, latest buffer snapshot, and cached metrics for a session. |
+| POST   | `/sessions/{id}/messages` | Append a message to a session. Supports optional RAG flags.             |
+| POST   | `/sessions/{id}/end`      | Mark session as ended and compute/store final summary.                  |
+| GET    | `/sessions/{id}/summary`  | Retrieve or recompute the session summary JSON.                         |
+
+---
+## 7.1. Message Payload (with Optional RAG)
+
+Basic message:
+
+```json
+{
+  "sender": "user",
+  "content": "I feel exhausted and unmotivated lately."
+}
+```
+Advanced, invoking RAG:
+```json
+{
+  "sender": "user",
+  "content": "I feel exhausted and unmotivated lately.",
+  "use_rag": true,
+  "auto_reply": true
+}
+```
+
+Response includes:
+
+assistant_message (if RAG produced a reply and auto_reply was set).
+rag block with:
+Retrieved snippets.
+Raw LLM output.
+Guardrail decisions/notes.
+Updated risk metrics and buffer snapshot for the session.
+
+
+---
+## 7.2. Sample Workflow (Curl)
+```bash
+# 1. Create a session
+curl -X POST http://127.0.0.1:8000/sessions \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": "demo-user"}'
+
+# 2. Append a user message
+curl -X POST http://127.0.0.1:8000/sessions/{session_id}/messages \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sender": "user",
+    "content": "I feel hopeless and tired.",
+    "use_rag": true,
+    "auto_reply": true
+  }'
+
+# 3. End the session and fetch summary
+curl -X POST http://127.0.0.1:8000/sessions/{session_id}/end
+
+curl http://127.0.0.1:8000/sessions/{session_id}/summary
+```
+
+---
+## 8. Extensibility
+
+A few ways to extend ConsultX for analysis & research:
+
+- 🔍 **Custom risk models**  
+  Plug your own classifier (transformer, API, etc.) into the risk pipeline and map outputs into the `ok` / `caution` / `high` / `crisis` tiers.
+
+- 📚 **New knowledge bases**  
+  Use `backend/core/ingest_build_examples.py` as a starting point to ingest different CBT/MI resources, psycho-educational guides, or synthetic examples.
+
+- 🤖 **Swap LLMs**  
+  Implement another client in `backend/core/llm_gateway.py` (e.g., OpenAI, local models) and keep the same orchestrator interface.
+
+- 🌎 **Locale-specific resources**  
+  Extend risk → resource mapping (e.g., hotlines, support services) by country or region.
+
+- 🧪 **A/B experimentation**  
+  Run experiments comparing:
+  - Plain LLM vs RAG vs RAG + Guardrails  
+  - Different prompt styles or retrieval strategies  
+  - Different risk-escalation policies
+
+---
+## 9. Safety & Disclaimer
+
+ConsultX is a research and prototyping tool, not a clinical product.
+
+- It does **not** provide medical advice.  
+- It is **not** a replacement for professional mental health care.
+
+Any deployment in real-world settings must include:
+
+- Human oversight  
+- Clinically validated risk escalation procedures  
+- Proper legal, ethical, and privacy review  
+
+---
+## 10. License / Attribution
+
+This project is open source under the MIT License.
+
+If you use ConsultX in research, demos, or reports, please credit:
+
+> ConsultX — Retrieval-Augmented Guardrails for Safer AI Therapy (Omkar Lashkare, 2025)
+
+See the `LICENSE` file for full details.
+
+
+
