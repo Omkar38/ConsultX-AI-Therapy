@@ -131,3 +131,86 @@ TheConsultX/
 ├── responses.json             # Example RAG / guardrail responses for reference
 └── README.md                  # You are here
 ```
+---
+## 5. Backend — Running the Session Tracker & RAG Core
+
+### 5.1. Prerequisites
+
+- **Python 3.11+**
+
+- For the **basic session tracker (no RAG/LLM)**, the backend uses only:
+  - Python standard library
+  - SQLite
+
+- The **RAG/LLM pipeline** (`backend/core/*`) additionally requires:
+  - Gemini client
+  - LangChain / transformers
+  - Vector store implementation
+  - Sentence embeddings
+  - Any other libraries imported at the top of those files
+
+---
+
+### 5.2. Quickstart (Session Tracker Only)
+
+From the repo root, run:
+
+```bash
+python -m backend.api
+```
+By default, the API listens on:
+```text
+http://127.0.0.1:8000
+```
+---
+### 5.3. Configuration (Environment Variables)
+
+#### Core backend
+
+- **`CONSULTX_DB_PATH`**  
+  Path to SQLite DB file.  
+  _Default_: `consultx.db` in the repo root.
+
+- **`CONSULTX_BUFFER_SIZE`**  
+  Rolling buffer size per session.  
+  _Default_: `20` messages.
+
+- **`CONSULTX_API_KEYS`**  
+  Comma-separated list of API keys.  
+  If set, every request must authenticate with one of these keys.
+
+- **`CONSULTX_API_KEYS_FILE`**  
+  Optional file path; one API key per line.  
+  Merged with `CONSULTX_API_KEYS`.
+
+---
+
+#### RAG / LLM pipeline (optional)
+
+- **`CONSULTX_ENABLE_RAG`** (`0` / `1`)  
+  When `1`, `POST /sessions/{id}/messages` can invoke the RAG pipeline via flags.
+
+- **`CONSULTX_RAG_AUTOREPLY`** (`0` / `1`)  
+  When `1`, the generated assistant reply is auto-appended to the session.
+
+- **`GOOGLE_API_KEY`**  
+  API key for the Gemini model (used in `backend/core/llm_gateway.py`).
+
+- **`CONSULTX_RAG_MODEL`**  
+  Model name to use in the LLM gateway.  
+  _Default_: `gemini-2.0-flash`.
+
+- **`CONSULTX_RAG_K`**  
+  Top-`k` retrieved context chunks per turn.  
+  _Default_: `2`.
+
+- **`CONSULTX_RAG_COUNTRY`**  
+  Country / region code used for region-aware disclaimers/resources.  
+  _Default_: `US`.
+
+- **`CONSULTX_RAG_GUARDRAILS`** (`0` / `1`)  
+  Toggle the post-generation guardrail enforcement layer.
+
+---
+
+If the RAG stack fails (missing libraries, no vector store, etc.), the backend returns a graceful error note in the `rag` block **without breaking the session tracker**.
