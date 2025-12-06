@@ -358,7 +358,7 @@ This project is open source under the MIT License.
 
 If you use ConsultX in research, demos, or reports, please credit:
 
-> ConsultX — Retrieval-Augmented Guardrails for Safer AI Therapy (Omkar Lashkare, 2025)
+> ConsultX — Retrieval-Augmented Guardrails for Safer AI Therapy (AMS 691.01 Group 4: Omkar Lashkare, Jiyang Wu, Yemoe Aung, Zikai Cheng, and Sarah Aguiar, 2025)
 
 See the `LICENSE` file for full details.
 
