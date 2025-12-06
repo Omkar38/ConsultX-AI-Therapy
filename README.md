@@ -81,9 +81,13 @@ The session tracker runs alongside this pipeline, storing:
   - Risk scores and tier transitions.
   - Final session summary with trends & resource hints.
 
-## 4. Project Structure
+The session tracker runs alongside this pipeline, storing:
+All messages + timestamps.
+Risk scores and tier transitions.
+Final session summary with trends & resource hints.
 
-```text
+##4. Project Structure
+
 TheConsultX/
 ├── backend/
 │   ├── __init__.py
@@ -126,7 +130,3 @@ TheConsultX/
 ├── consultx.db                # SQLite database (created/used by backend)
 ├── responses.json             # Example RAG / guardrail responses for reference
 └── README.md                  # You are here
-
-
-
-
