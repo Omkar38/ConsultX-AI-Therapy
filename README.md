@@ -81,6 +81,51 @@ The session tracker runs alongside this pipeline, storing:
   - Risk scores and tier transitions.
   - Final session summary with trends & resource hints.
 
+## 4. Project Structure
+
+```text
+TheConsultX/
+├── backend/
+│   ├── __init__.py
+│   ├── analysis.py            # Sentiment + risk heuristics & resource mapping
+│   ├── api.py                 # HTTP server exposing REST endpoints
+│   ├── models.py              # Dataclasses, enums, and shared types
+│   ├── session_tracking.py    # Session lifecycle + metrics + summaries
+│   ├── storage.py             # SQLite repository for sessions/messages/metrics
+│   ├── core_adapter.py        # Thin wrapper: session tracker → RAG/guardrails core
+│   └── core/                  # RAG + LLM + guardrails pipeline
+│       ├── orchestrator.py    # Orchestrates retrieval → LLM → guardrails
+│       ├── retrieval.py       # Vector store + embeddings + top-k snippet lookup
+│       ├── prompt.py          # MI/CBT system & turn templates
+│       ├── guardrails.py      # Post-gen filters, safety rules, escalation logic
+│       ├── risk_types.py      # Canonical risk tiers and helper types
+│       ├── llm_gateway.py     # Wrapper over Gemini / LLM API(s)
+│       ├── memory.py          # Long-lived memory abstraction (per user/episode)
+│       ├── session_store.py   # Persistent store for core pipeline state
+│       ├── schemas.py         # Pydantic-style schemas for RAG/therapy turn payloads
+│       └── ingest_build_examples.py
+│                              # Scripts to ingest CBT/MI resources into a vector store
+│
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   ├── eslint.config.js
+│   ├── prettier.config.js
+│   └── src/
+│       ├── main.tsx           # React entrypoint
+│       ├── App.tsx            # Top-level app shell
+│       ├── components/        # Chat UI, risk badges, layout components, etc.
+│       └── ...
+│
+├── docs/
+│   └── session_backend_design.md   # Detailed design doc for session tracking backend
+│
+├── consultx.db                # SQLite database (created/used by backend)
+├── responses.json             # Example RAG / guardrail responses for reference
+└── README.md                  # You are here
 
 
 
