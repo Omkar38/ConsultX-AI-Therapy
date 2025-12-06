@@ -87,6 +87,7 @@ The session tracker runs alongside this pipeline, storing:
 
 ## 4. Project Structure
 
+```text
 TheConsultX/
 ├── backend/
 │   ├── __init__.py
@@ -129,3 +130,4 @@ TheConsultX/
 ├── consultx.db                # SQLite database (created/used by backend)
 ├── responses.json             # Example RAG / guardrail responses for reference
 └── README.md                  # You are here
+```
