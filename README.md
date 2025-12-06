@@ -81,14 +81,11 @@ The session tracker runs alongside this pipeline, storing:
   - Risk scores and tier transitions.
   - Final session summary with trends & resource hints.
 
-```text
+```
 
-The session tracker runs alongside this pipeline, storing:
-All messages + timestamps.
-Risk scores and tier transitions.
-Final session summary with trends & resource hints.
+---
 
-##4. Project Structure
+## 4. Project Structure
 
 TheConsultX/
 ├── backend/
